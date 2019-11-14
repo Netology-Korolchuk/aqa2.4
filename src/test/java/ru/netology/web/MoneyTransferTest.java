@@ -9,44 +9,51 @@ import static com.codeborne.selenide.Selenide.*;
 class MoneyTransferTest {
 
     @Test
-    @DisplayName ("переводим 1000 со второй на первую карту")
-    void shouldTransferMoneyWithFirstCardToSecondCard() {
+    @DisplayName("переводим 1000 со второй на первую карту, баланс первой должен быть 11000")
+    void shouldTransferWithSecondCardToFirstCard() {
+        open("http://localhost:9999");
+        val loginPage = new LoginPage();
+        val authInfo = DataHelper.getAuthInfo();
+        val verificationPage = loginPage.validLogin(authInfo);
+        val verificationCode = DataHelper.getVerificationCodeFor(authInfo);
+        verificationPage.validVerify(verificationCode);
         val moneyTransfer = new MoneyTransfer();
-        moneyTransfer.loginAndVerification();
 
-        moneyTransfer.toFirstCardTransfer.click();
-        moneyTransfer.amount.setValue("1000");
-        moneyTransfer.from.setValue("5559000000000002");
-        moneyTransfer.transferButton.click();
-        moneyTransfer.firstCard.shouldBe(visible).$(withText("11000"));
+        moneyTransfer.transferWithSecondCardToFirstCard();
+        $(withText("11000")).shouldBe(visible);
+    }
+
+
+    @Test
+    @DisplayName("переводим 1000 с первой на вторую карту, баланс второй должен быть 10000")
+    void shouldTransferWithFirstCardToSecondCard() {
+        open("http://localhost:9999");
+        val loginPage = new LoginPage();
+        val authInfo = DataHelper.getAuthInfo();
+        val verificationPage = loginPage.validLogin(authInfo);
+        val verificationCode = DataHelper.getVerificationCodeFor(authInfo);
+        verificationPage.validVerify(verificationCode);
+        val moneyTransfer = new MoneyTransfer();
+
+        moneyTransfer.transferWithFirstCardToSecondCard();
+        $(withText("10000")).shouldBe(visible);
     }
 
     @Test
-    @DisplayName ("переводим 1000 с первой карту на вторую")
-    void shouldTransferMoneyWithSecondCardToFirstCard() {
+    @DisplayName ("переводим 20000 с первой на вторую карту, баланс второй должен быть -10000")
+    void shouldTransferWithSecondCardToFirstCardNegativeBalance() {
+        open("http://localhost:9999");
+        val loginPage = new LoginPage();
+        val authInfo = DataHelper.getAuthInfo();
+        val verificationPage = loginPage.validLogin(authInfo);
+        val verificationCode = DataHelper.getVerificationCodeFor(authInfo);
+        verificationPage.validVerify(verificationCode);
         val moneyTransfer = new MoneyTransfer();
-        moneyTransfer.loginAndVerification();
 
-        moneyTransfer.toSecondCardTransfer.click();
-        moneyTransfer.amount.setValue("1000");
-        moneyTransfer.from.setValue("5559000000000001");
-        moneyTransfer.transferButton.click();
-        moneyTransfer.secondCard.shouldBe(visible).$(withText("14000"));
+        moneyTransfer.transferWithSecondCardToFirstCardNegativeBalance();
+        $(withText("-10000")).shouldBe(visible);
     }
 
-    @Test
-    @DisplayName ("переводим 20000 со второй на первую карту, отрицательный баланс")
-    void shouldTransferMoneyWithFirstCardToSecondCardNegativeBalance() {
-        val moneyTransfer = new MoneyTransfer();
-        moneyTransfer.loginAndVerification();
-
-        moneyTransfer.toFirstCardTransfer.click();
-        moneyTransfer.amount.setValue("20000");
-        moneyTransfer.from.setValue("5559000000000002");
-        moneyTransfer.transferButton.click();
-        moneyTransfer.secondCard.shouldBe(visible).$(withText("-5000"));
-
-    }
 }
 
 
